@@ -1,4 +1,7 @@
 "use client";
+import { motion } from "framer-motion";
+import { Drumstick, Snowflake, Package, Flame, LayoutGrid } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { computeStatus, computeTotal } from "../../types";
 import type { SOSheet } from "../../types";
 
@@ -8,11 +11,11 @@ interface Props {
   onSelect: (index: number) => void;
 }
 
-const AREA_ICONS: Record<string, string> = {
-  meja_biru: "🍗",
-  freezer: "❄️",
-  meja_laci: "📦",
-  gas: "⚡",
+const AREA_ICONS: Record<string, LucideIcon> = {
+  meja_biru: Drumstick,
+  freezer: Snowflake,
+  meja_laci: Package,
+  gas: Flame,
 };
 
 export default function SheetTabs({ sheets, activeIndex, onSelect }: Props) {
@@ -28,6 +31,7 @@ export default function SheetTabs({ sheets, activeIndex, onSelect }: Props) {
       <style>{`::-webkit-scrollbar { display: none; }`}</style>
       {sheets.map((sheet, i) => {
         const isActive = i === activeIndex;
+        const Icon = AREA_ICONS[sheet.area] ?? LayoutGrid;
 
         let kritisCount = 0;
         if (sheet.area !== "gas") {
@@ -39,44 +43,67 @@ export default function SheetTabs({ sheets, activeIndex, onSelect }: Props) {
         }
 
         return (
-          <button
+          <motion.button
             key={sheet.sheetName}
             onClick={() => onSelect(i)}
+            whileTap={{ scale: 0.96 }}
             style={{
+              position: "relative",
               flexShrink: 0,
               display: "flex",
               alignItems: "center",
               gap: "6px",
               padding: "8px 14px",
-              borderRadius: "var(--radius-sm)",
-              background: isActive ? "var(--accent)" : "var(--bg-card)",
-              color: isActive ? "white" : "var(--text-secondary)",
-              border: isActive ? "none" : "1px solid var(--border)",
+              borderRadius: "var(--radius-md)",
+              background: "transparent",
+              color: isActive ? "var(--accent)" : "var(--text-secondary)",
+              border: "none",
               fontSize: "13px",
-              fontWeight: isActive ? 600 : 500,
+              fontWeight: isActive ? 700 : 500,
               cursor: "pointer",
-              transition: "all 0.15s ease",
-              position: "relative",
+              transition: "color 0.2s ease",
               whiteSpace: "nowrap",
             }}
           >
-            <span>{AREA_ICONS[sheet.area] ?? "📋"}</span>
-            <span>{sheet.label}</span>
-            {kritisCount > 0 && (
-              <span style={{
-                padding: "2px 6px",
-                borderRadius: "10px",
-                background: isActive ? "rgba(255,255,255,0.25)" : "var(--kritis)",
-                color: isActive ? "white" : "white",
-                fontSize: "10px",
-                fontWeight: 700,
-                minWidth: "18px",
-                textAlign: "center",
-              }}>
-                {kritisCount}
-              </span>
+            {isActive && (
+              <motion.span
+                layoutId="tab-active"
+                transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--accent-soft)",
+                  border: "1px solid var(--border)",
+                  boxShadow: "var(--shadow-sm)",
+                }}
+              />
             )}
-          </button>
+            <Icon size={15} strokeWidth={isActive ? 2.4 : 2} style={{ position: "relative", zIndex: 1 }} />
+            <span style={{ position: "relative", zIndex: 1 }}>{sheet.label}</span>
+            {kritisCount > 0 && (
+              <motion.span
+                key={kritisCount}
+                initial={{ scale: 0.4, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 22 }}
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  padding: "1px 6px",
+                  borderRadius: "var(--radius-full)",
+                  background: "var(--kritis)",
+                  color: "#fff",
+                  fontSize: "10px",
+                  fontWeight: 800,
+                  minWidth: "17px",
+                  textAlign: "center",
+                }}
+              >
+                {kritisCount}
+              </motion.span>
+            )}
+          </motion.button>
         );
       })}
     </div>

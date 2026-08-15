@@ -1,5 +1,7 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FileSpreadsheet, CheckCircle2 } from "lucide-react";
 import { parseSOWorkbook } from "./lib/excel-parser";
 import { generateSOExcel } from "./lib/excel-generator";
 import type { SOWorkbook, SOSheet, GasItem } from "./types";
@@ -122,87 +124,140 @@ export default function Home() {
   // Count total items across all sheets
   const totalItems = sheets.reduce((acc, s) => acc + (s.area !== "gas" ? s.items.length : (s.gasItems?.length ?? 0)), 0);
 
-  if (!workbook) {
-    return (
-      <main style={{ maxWidth: "480px", margin: "0 auto", paddingTop: "env(safe-area-inset-top)" }}>
-        <div style={{ padding: "20px 0 0" }}>
-          <UploadZone onFile={handleFile} loading={loading} />
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main style={{
-      maxWidth: "480px",
+      maxWidth: "520px",
       margin: "0 auto",
       minHeight: "100dvh",
       display: "flex",
       flexDirection: "column",
       paddingTop: "env(safe-area-inset-top)",
     }}>
-      {/* Sticky top */}
-      <div style={{ position: "sticky", top: 0, zIndex: 50, background: "var(--bg)" }}>
-        <HeaderInfo
-          fileName={fileName}
-          tanggal={tanggal}
-          onTanggalChange={setTanggal}
-          namaPetugas={namaPetugas}
-          onNamaPetugasChange={setNamaPetugas}
-          onReset={handleReset}
-        />
+      <AnimatePresence mode="wait">
+        {!workbook ? (
+          <motion.div
+            key="upload"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 0.97, y: -8 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            style={{ padding: "20px 0 0" }}
+          >
+            <UploadZone onFile={handleFile} loading={loading} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="editor"
+            initial={{ opacity: 0, scale: 0.98, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] as const }}
+            style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: "0" }}
+          >
+            {/* Sticky top */}
+            <div style={{ position: "sticky", top: 0, zIndex: 50 }}>
+              <HeaderInfo
+                fileName={fileName}
+                tanggal={tanggal}
+                onTanggalChange={setTanggal}
+                namaPetugas={namaPetugas}
+                onNamaPetugasChange={setNamaPetugas}
+                onReset={handleReset}
+              />
 
-        {/* Filter bar + tab */}
-        <div style={{
-          padding: "8px 12px 0",
-          background: "var(--bg)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "8px",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", flex: 1 }}>
-            <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-              {totalItems} item terdeteksi
-            </span>
-          </div>
-        </div>
+              {/* Filter bar + tab */}
+              <div style={{
+                padding: "8px 16px 0",
+                background: "var(--bg-elevated)",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "8px",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "7px", flex: 1 }}>
+                  <FileSpreadsheet size={13} strokeWidth={2} style={{ color: "var(--text-muted)" }} />
+                  <motion.span
+                    key={totalItems}
+                    initial={{ opacity: 0.5 }}
+                    animate={{ opacity: 1 }}
+                    style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-muted)" }}
+                  >
+                    {totalItems} item terdeteksi
+                  </motion.span>
+                  {filterKritis && (
+                    <motion.span
+                      initial={{ opacity: 0, x: -4 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        color: "var(--kritis)",
+                        background: "var(--kritis-bg)",
+                        border: "1px solid var(--kritis-border)",
+                        padding: "2px 8px",
+                        borderRadius: "var(--radius-full)",
+                      }}
+                    >
+                      <CheckCircle2 size={11} strokeWidth={2.5} />
+                      Filter aktif
+                    </motion.span>
+                  )}
+                </div>
+              </div>
 
-        <SheetTabs sheets={sheets} activeIndex={activeTab} onSelect={setActiveTab} />
+              <SheetTabs sheets={sheets} activeIndex={activeTab} onSelect={setActiveTab} />
 
-        <div style={{ height: "8px", background: "var(--bg)" }} />
-      </div>
+              <div style={{ height: "8px" }} />
+            </div>
 
-      {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: "auto", paddingBottom: "180px" }}>
-        {activeSheet ? (
-          activeSheet.area === "gas" ? (
-            <GasTable
-              items={activeSheet.gasItems ?? []}
-              onItemChange={(rowIndex, field, value) =>
-                handleGasItemChange(activeTab, rowIndex, field, value)
-              }
-            />
-          ) : (
-            <ItemTable
-              items={activeSheet.items}
-              onItemChange={(rowIndex, field, value) =>
-                handleItemChange(activeTab, rowIndex, field, value)
-              }
+            {/* Scrollable content */}
+            <div style={{ flex: 1, overflowY: "auto", paddingBottom: "190px" }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.22, ease: "easeOut" }}
+                >
+                  {activeSheet ? (
+                    activeSheet.area === "gas" ? (
+                      <GasTable
+                        items={activeSheet.gasItems ?? []}
+                        onItemChange={(rowIndex, field, value) =>
+                          handleGasItemChange(activeTab, rowIndex, field, value)
+                        }
+                      />
+                    ) : (
+                      <ItemTable
+                        items={activeSheet.items}
+                        onItemChange={(rowIndex, field, value) =>
+                          handleItemChange(activeTab, rowIndex, field, value)
+                        }
+                        filterKritis={filterKritis}
+                      />
+                    )
+                  ) : null}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Sticky footer */}
+            <StickyFooter
+              sheets={sheets}
+              onGenerate={handleGenerate}
+              generating={generating}
               filterKritis={filterKritis}
+              onToggleFilter={() => setFilterKritis((v) => !v)}
             />
-          )
-        ) : null}
-      </div>
-
-      {/* Sticky footer */}
-      <StickyFooter
-        sheets={sheets}
-        onGenerate={handleGenerate}
-        generating={generating}
-        filterKritis={filterKritis}
-        onToggleFilter={() => setFilterKritis((v) => !v)}
-      />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
