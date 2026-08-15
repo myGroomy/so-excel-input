@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, memo } from "react";
 import { motion } from "framer-motion";
-import { AlertTriangle, Flame, ShieldCheck, Minus, ChevronDown, Package, History } from "lucide-react";
+import { AlertTriangle, Flame, ShieldCheck, Minus, Package, History } from "lucide-react";
 import { computeStatus, computeTotal } from "../../types";
 import type { SOItem } from "../../types";
 
@@ -118,25 +118,20 @@ export default memo(function ItemTable({ items, onItemChange, filterKritis }: Pr
 
         return (
           <div key={category} style={{ marginBottom: "8px" }}>
-            {/* Category header */}
+            {/* Category heading — sticks to top while scrolling; the next
+                category's heading naturally pushes this one out (CSS sticky). */}
             <div style={{
-              padding: "10px 16px",
+              padding: "8px 16px",
               fontSize: "14px",
               fontWeight: 800,
-              color: "var(--text-muted)",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
+              color: "var(--text-primary)",
               background: "var(--bg)",
+              borderBottom: "1px solid var(--border)",
               position: "sticky",
               top: "108px",
               zIndex: 5,
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
             }}>
-              <ChevronDown size={14} strokeWidth={2.5} />
               {category}
-              <span style={{ color: "var(--text-muted)", opacity: 0.7, fontWeight: 600 }}>({visible.length})</span>
             </div>
 
             <motion.div initial="hidden" animate="show" transition={{ staggerChildren: 0.03 }}>

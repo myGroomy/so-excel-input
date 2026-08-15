@@ -174,13 +174,17 @@ export function generateSOExcel(
       xml = r2.xml;
       sstXml = r2.sstXml;
     } else {
-      // SO sheet: step1 (C), step2 (D), date (C2), petugas (K2)
+      // SO sheet: step1 (C), step2 (D), date (C2), petugas (K2).
+      // If the user edited a field, write their value; otherwise keep the
+      // original value from the uploaded template instead of overwriting with 0.
       for (const item of sheet.items) {
         const row = item.rowIndex;
-        const r1 = setCell(xml, `C${row}`, { kind: "num", v: item.step1 }, sstXml);
+        const v1 = item.step1Touched ? item.step1 : item.oldStep1;
+        const v2 = item.step2Touched ? item.step2 : item.oldStep2;
+        const r1 = setCell(xml, `C${row}`, { kind: "num", v: v1 }, sstXml);
         xml = r1.xml;
         sstXml = r1.sstXml;
-        const r2 = setCell(xml, `D${row}`, { kind: "num", v: item.step2 }, sstXml);
+        const r2 = setCell(xml, `D${row}`, { kind: "num", v: v2 }, sstXml);
         xml = r2.xml;
         sstXml = r2.sstXml;
       }

@@ -6,6 +6,8 @@ export interface SOItem {
   namaBarang: string;
   step1: number;
   step2: number;
+  step1Touched: boolean;
+  step2Touched: boolean;
   oldStep1: number;
   oldStep2: number;
   satuan: string;

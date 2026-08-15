@@ -123,9 +123,12 @@ export default function Home() {
       setSheets((prev) => {
         const next = [...prev];
         const sheet = { ...next[sheetIndex] };
-        sheet.items = sheet.items.map((item) =>
-          item.rowIndex === rowIndex ? { ...item, [field]: value } : item
-        );
+        sheet.items = sheet.items.map((item) => {
+          if (item.rowIndex !== rowIndex) return item;
+          return field === "step1"
+            ? { ...item, step1: value, step1Touched: true }
+            : { ...item, step2: value, step2Touched: true };
+        });
         next[sheetIndex] = sheet;
         return next;
       });

@@ -105,6 +105,8 @@ function parseSOSheet(ws: XLSX.WorkSheet, sheetName: string): SOSheet {
       namaBarang: col1,
       step1: 0,
       step2: 0,
+      step1Touched: false,
+      step2Touched: false,
       oldStep1: step1,
       oldStep2: step2,
       satuan: safeStr(col4).replace(/-\+/g, "").trim(),
