@@ -38,8 +38,9 @@ export default function Home() {
   const [filterKritis, setFilterKritis] = useState(false);
   const [generating, setGenerating] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [headerHidden, setHeaderHidden] = useState(false);
+  const headerRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
+  const scrollTicking = useRef(false);
   const [hydrated, setHydrated] = useState(false);
 
   // Restore previously saved work in progress on mount.
@@ -77,16 +78,24 @@ export default function Home() {
   }, [hydrated, workbook, sheets, fileName, tanggal, namaPetugas, activeTab, filterKritis]);
 
   const handleScroll = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const current = el.scrollTop;
-    // Hide header when scrolling down past a small threshold; show when scrolling up
-    if (current > lastScrollY.current && current > 24) {
-      setHeaderHidden(true);
-    } else if (current < lastScrollY.current || current <= 24) {
-      setHeaderHidden(false);
-    }
-    lastScrollY.current = current;
+    if (scrollTicking.current) return;
+    scrollTicking.current = true;
+    requestAnimationFrame(() => {
+      scrollTicking.current = false;
+      const el = scrollRef.current;
+      if (!el) return;
+      const current = el.scrollTop;
+      // Hide header when scrolling down past a small threshold; show when scrolling up.
+      // Directly mutate the DOM (no React state) so scroll never re-renders the page.
+      if (headerRef.current) {
+        if (current > lastScrollY.current && current > 24) {
+          headerRef.current.style.transform = "translateY(-100%)";
+        } else if (current < lastScrollY.current || current <= 24) {
+          headerRef.current.style.transform = "translateY(0%)";
+        }
+      }
+      lastScrollY.current = current;
+    });
   }, []);
 
   const handleFile = useCallback(async (buffer: ArrayBuffer, name: string) => {
@@ -225,10 +234,16 @@ export default function Home() {
             style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: "0" }}
           >
             {/* Sticky top */}
-            <motion.div
-              style={{ position: "sticky", top: 0, zIndex: 50 }}
-              animate={{ y: headerHidden ? "-100%" : "0%" }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] as const }}
+            <div
+              ref={headerRef}
+              style={{
+                position: "sticky",
+                top: 0,
+                zIndex: 50,
+                transform: "translateY(0%)",
+                willChange: "transform",
+                transition: "transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
             >
               <HeaderInfo
                 fileName={fileName}
@@ -287,7 +302,7 @@ export default function Home() {
               <SheetTabs sheets={sheets} activeIndex={activeTab} onSelect={setActiveTab} />
 
               <div style={{ height: "8px" }} />
-            </motion.div>
+            </div>
 
             {/* Scrollable content */}
             <div

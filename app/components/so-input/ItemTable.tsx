@@ -1,6 +1,6 @@
 "use client";
-import { useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useCallback, memo } from "react";
+import { motion } from "framer-motion";
 import { AlertTriangle, Flame, ShieldCheck, Minus, ChevronDown, Package, History } from "lucide-react";
 import { computeStatus, computeTotal } from "../../types";
 import type { SOItem } from "../../types";
@@ -78,7 +78,7 @@ function displayTotal(item: SOItem): number {
   return computeTotal(item.oldStep1, item.oldStep2);
 }
 
-export default function ItemTable({ items, onItemChange, filterKritis }: Props) {
+export default memo(function ItemTable({ items, onItemChange, filterKritis }: Props) {
   const handleInput = useCallback(
     (rowIndex: number, field: "step1" | "step2", raw: string) => {
       const val = parseFloat(raw) || 0;
@@ -139,22 +139,19 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
               <span style={{ color: "var(--text-muted)", opacity: 0.7, fontWeight: 600 }}>({visible.length})</span>
             </div>
 
-            <motion.div layout initial="hidden" animate="show" transition={{ staggerChildren: 0.04 }}>
-              <AnimatePresence mode="popLayout">
-                {visible.map((item) => {
-                  const total = displayTotal(item);
-                  const status = computeStatus(total, item.threshold);
-                  const cfg = STATUS_CONFIG[status];
-                  const Icon = cfg.Icon;
+            <motion.div initial="hidden" animate="show" transition={{ staggerChildren: 0.03 }}>
+              {visible.map((item) => {
+                const total = displayTotal(item);
+                const status = computeStatus(total, item.threshold);
+                const cfg = STATUS_CONFIG[status];
+                const Icon = cfg.Icon;
 
-                  return (
-                    <motion.div
-                      key={item.rowIndex}
-                      layout
-                      variants={itemVariants}
-                      exit="exit"
-                      whileTap={{ scale: 0.995 }}
-                      style={{
+                return (
+                  <motion.div
+                    key={item.rowIndex}
+                    variants={itemVariants}
+                    whileTap={{ scale: 0.995 }}
+                    style={{
                         margin: "4px 12px",
                         borderRadius: "var(--radius-lg)",
                         background: "var(--bg-card)",
@@ -216,7 +213,6 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
 
                         {/* Status badge */}
                         <motion.div
-                          layout
                           key={status}
                           initial={{ scale: 0.6, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
@@ -351,11 +347,10 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
                     </motion.div>
                   );
                 })}
-              </AnimatePresence>
             </motion.div>
           </div>
         );
       })}
     </div>
   );
-}
+})
