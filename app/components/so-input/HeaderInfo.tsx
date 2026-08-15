@@ -18,7 +18,7 @@ const inputStyle: React.CSSProperties = {
   background: "var(--bg-input)",
   border: "1.5px solid var(--border)",
   color: "var(--text-primary)",
-  fontSize: "13px",
+  fontSize: "14px",
   fontWeight: 600,
   transition: "border-color 0.15s, box-shadow 0.15s",
 };
@@ -63,10 +63,10 @@ export default function HeaderInfo({
             <FileSpreadsheet size={18} strokeWidth={2} />
           </div>
           <div style={{ minWidth: 0 }}>
-            <p style={{ fontSize: "13px", fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.3px" }}>
+            <p style={{ fontSize: "14px", fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.3px" }}>
               Stok Opname
             </p>
-            <p style={{ fontSize: "11px", color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "160px" }}>
+            <p style={{ fontSize: "12px", color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "160px" }}>
               {fileName}
             </p>
           </div>
@@ -111,8 +111,8 @@ export default function HeaderInfo({
       {/* Date & officer */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
         <div>
-          <label style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px", display: "flex", alignItems: "center", gap: 4, marginBottom: "5px" }}>
-            <CalendarDays size={12} strokeWidth={2} /> Tanggal
+          <label style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px", display: "flex", alignItems: "center", gap: 4, marginBottom: "5px" }}>
+            <CalendarDays size={13} strokeWidth={2} /> Tanggal
           </label>
           <input
             type="date"
@@ -124,8 +124,8 @@ export default function HeaderInfo({
           />
         </div>
         <div>
-          <label style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px", display: "flex", alignItems: "center", gap: 4, marginBottom: "5px" }}>
-            <UserRound size={12} strokeWidth={2} /> Petugas
+          <label style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px", display: "flex", alignItems: "center", gap: 4, marginBottom: "5px" }}>
+            <UserRound size={13} strokeWidth={2} /> Petugas
           </label>
           <input
             type="text"

@@ -80,7 +80,7 @@ export default function StickyFooter({ sheets, onGenerate, generating, filterKri
                 </motion.span>
               </AnimatePresence>
             </div>
-            <div style={{ fontSize: "10px", color, opacity: 0.85, fontWeight: 600, marginTop: 1 }}>{label}</div>
+            <div style={{ fontSize: "14px", color, opacity: 0.85, fontWeight: 600, marginTop: 1 }}>{label}</div>
           </motion.div>
         ))}
       </div>
@@ -101,7 +101,7 @@ export default function StickyFooter({ sheets, onGenerate, generating, filterKri
             background: filterKritis ? "var(--kritis-bg)" : "var(--bg-card2)",
             border: filterKritis ? "1.5px solid var(--kritis-border)" : "1.5px solid var(--border)",
             color: filterKritis ? "var(--kritis)" : "var(--text-secondary)",
-            fontSize: "13px",
+            fontSize: "14px",
             fontWeight: 700,
             cursor: "pointer",
             transition: "all 0.2s",

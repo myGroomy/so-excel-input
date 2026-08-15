@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileSpreadsheet, CheckCircle2 } from "lucide-react";
 import { parseSOWorkbook } from "./lib/excel-parser";
@@ -36,6 +36,22 @@ export default function Home() {
   const [namaPetugas, setNamaPetugas] = useState("");
   const [filterKritis, setFilterKritis] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [headerHidden, setHeaderHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const current = el.scrollTop;
+    // Hide header when scrolling down past a small threshold; show when scrolling up
+    if (current > lastScrollY.current && current > 24) {
+      setHeaderHidden(true);
+    } else if (current < lastScrollY.current || current <= 24) {
+      setHeaderHidden(false);
+    }
+    lastScrollY.current = current;
+  }, []);
 
   const handleFile = useCallback(async (buffer: ArrayBuffer, name: string) => {
     setLoading(true);
@@ -155,7 +171,11 @@ export default function Home() {
             style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: "0" }}
           >
             {/* Sticky top */}
-            <div style={{ position: "sticky", top: 0, zIndex: 50 }}>
+            <motion.div
+              style={{ position: "sticky", top: 0, zIndex: 50 }}
+              animate={{ y: headerHidden ? "-100%" : "0%" }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] as const }}
+            >
               <HeaderInfo
                 fileName={fileName}
                 tanggal={tanggal}
@@ -213,10 +233,14 @@ export default function Home() {
               <SheetTabs sheets={sheets} activeIndex={activeTab} onSelect={setActiveTab} />
 
               <div style={{ height: "8px" }} />
-            </div>
+            </motion.div>
 
             {/* Scrollable content */}
-            <div style={{ flex: 1, overflowY: "auto", paddingBottom: "190px" }}>
+            <div
+              ref={scrollRef}
+              onScroll={handleScroll}
+              style={{ flex: 1, overflowY: "auto", paddingBottom: "190px" }}
+            >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}

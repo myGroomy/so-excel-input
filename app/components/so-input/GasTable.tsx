@@ -11,7 +11,7 @@ interface Props {
 const STATUS_OPTIONS = ["Ada", "Sedikit", "Hampir Habis", "Habis", "Diisi", ""];
 
 const fieldLabel: React.CSSProperties = {
-  fontSize: "10px",
+  fontSize: "12px",
   fontWeight: 700,
   color: "var(--text-muted)",
   textTransform: "uppercase",
@@ -76,15 +76,15 @@ export default function GasTable({ items, onItemChange }: Props) {
             borderBottom: "1px solid var(--border)",
           }}>
             <span style={{
-              width: 26,
-              height: 26,
+              width: 28,
+              height: 28,
               borderRadius: "8px",
               background: "var(--accent-soft)",
               border: "1px solid var(--border)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "11px",
+              fontSize: "14px",
               fontWeight: 800,
               color: "var(--accent)",
               flexShrink: 0,

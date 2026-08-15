@@ -103,8 +103,10 @@ function parseSOSheet(ws: XLSX.WorkSheet, sheetName: string): SOSheet {
       rowIndex: i + 1, // 1-based
       no: typeof col0 === "number" ? col0 : i - 3,
       namaBarang: col1,
-      step1,
-      step2,
+      step1: 0,
+      step2: 0,
+      oldStep1: step1,
+      oldStep2: step2,
       satuan: safeStr(col4).replace(/-\+/g, "").trim(),
       konversiQty: col6 !== null ? safeNum(col6) : null,
       konversiKet: safeStr(col7) || null,

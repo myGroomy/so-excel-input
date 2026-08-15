@@ -6,6 +6,8 @@ export interface SOItem {
   namaBarang: string;
   step1: number;
   step2: number;
+  oldStep1: number;
+  oldStep2: number;
   satuan: string;
   konversiQty: number | null;
   konversiKet: string | null;

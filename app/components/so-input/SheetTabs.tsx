@@ -53,32 +53,19 @@ export default function SheetTabs({ sheets, activeIndex, onSelect }: Props) {
               display: "flex",
               alignItems: "center",
               gap: "6px",
-              padding: "8px 14px",
+              padding: "9px 14px",
               borderRadius: "var(--radius-md)",
-              background: "transparent",
-              color: isActive ? "var(--accent)" : "var(--text-secondary)",
-              border: "none",
-              fontSize: "13px",
+              background: isActive ? "var(--accent-strong)" : "var(--bg-card)",
+              color: isActive ? "var(--on-accent)" : "var(--text-secondary)",
+              border: `1px solid ${isActive ? "var(--accent)" : "var(--border)"}`,
+              fontSize: "14px",
               fontWeight: isActive ? 700 : 500,
               cursor: "pointer",
-              transition: "color 0.2s ease",
+              transition: "color 0.2s ease, background 0.2s ease, border-color 0.2s ease",
               whiteSpace: "nowrap",
+              boxShadow: isActive ? "var(--glow-accent)" : "var(--shadow-sm)",
             }}
           >
-            {isActive && (
-              <motion.span
-                layoutId="tab-active"
-                transition={{ type: "spring", stiffness: 400, damping: 32 }}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  borderRadius: "var(--radius-md)",
-                  background: "var(--accent-soft)",
-                  border: "1px solid var(--border)",
-                  boxShadow: "var(--shadow-sm)",
-                }}
-              />
-            )}
             <Icon size={15} strokeWidth={isActive ? 2.4 : 2} style={{ position: "relative", zIndex: 1 }} />
             <span style={{ position: "relative", zIndex: 1 }}>{sheet.label}</span>
             {kritisCount > 0 && (
@@ -94,7 +81,7 @@ export default function SheetTabs({ sheets, activeIndex, onSelect }: Props) {
                   borderRadius: "var(--radius-full)",
                   background: "var(--kritis)",
                   color: "#fff",
-                  fontSize: "10px",
+                  fontSize: "11px",
                   fontWeight: 800,
                   minWidth: "17px",
                   textAlign: "center",

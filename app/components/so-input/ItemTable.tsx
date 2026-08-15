@@ -1,7 +1,7 @@
 "use client";
 import { useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, Flame, ShieldCheck, Minus, ChevronDown, Package } from "lucide-react";
+import { AlertTriangle, Flame, ShieldCheck, Minus, ChevronDown, Package, History } from "lucide-react";
 import { computeStatus, computeTotal } from "../../types";
 import type { SOItem } from "../../types";
 
@@ -49,10 +49,20 @@ const inputBase: React.CSSProperties = {
   background: "var(--bg-input)",
   border: "1.5px solid var(--border)",
   color: "var(--text-primary)",
-  fontSize: "16px",
+  fontSize: "14px",
   fontWeight: 700,
   outline: "none",
   transition: "border-color 0.15s, box-shadow 0.15s",
+};
+
+const boxBase: React.CSSProperties = {
+  borderRadius: "var(--radius-sm)",
+  border: "1.5px solid var(--border)",
+  padding: "10px 12px",
+  textAlign: "center",
+  fontSize: "14px",
+  fontWeight: 700,
+  fontVariantNumeric: "tabular-nums",
 };
 
 const itemVariants = {
@@ -60,6 +70,13 @@ const itemVariants = {
   show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const } },
   exit: { opacity: 0, scale: 0.96, transition: { duration: 0.15 } },
 };
+
+function displayTotal(item: SOItem): number {
+  if (item.step1 > 0 || item.step2 > 0) {
+    return computeTotal(item.step1, item.step2);
+  }
+  return computeTotal(item.oldStep1, item.oldStep2);
+}
 
 export default function ItemTable({ items, onItemChange, filterKritis }: Props) {
   const handleInput = useCallback(
@@ -92,8 +109,7 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
       {Object.entries(grouped).map(([category, catItems]) => {
         const visible = filterKritis
           ? catItems.filter((it) => {
-              const total = computeTotal(it.step1, it.step2);
-              const status = computeStatus(total, it.threshold);
+              const status = computeStatus(displayTotal(it), it.threshold);
               return status === "kritis" || status === "hampir_habis";
             })
           : catItems;
@@ -105,11 +121,11 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
             {/* Category header */}
             <div style={{
               padding: "10px 16px",
-              fontSize: "11px",
+              fontSize: "14px",
               fontWeight: 800,
               color: "var(--text-muted)",
               textTransform: "uppercase",
-              letterSpacing: "1.2px",
+              letterSpacing: "1px",
               background: "var(--bg)",
               position: "sticky",
               top: "108px",
@@ -118,20 +134,15 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
               alignItems: "center",
               gap: 6,
             }}>
-              <ChevronDown size={13} strokeWidth={2.5} />
+              <ChevronDown size={14} strokeWidth={2.5} />
               {category}
               <span style={{ color: "var(--text-muted)", opacity: 0.7, fontWeight: 600 }}>({visible.length})</span>
             </div>
 
-            <motion.div
-              layout
-              initial="hidden"
-              animate="show"
-              transition={{ staggerChildren: 0.04 }}
-            >
+            <motion.div layout initial="hidden" animate="show" transition={{ staggerChildren: 0.04 }}>
               <AnimatePresence mode="popLayout">
                 {visible.map((item) => {
-                  const total = computeTotal(item.step1, item.step2);
+                  const total = displayTotal(item);
                   const status = computeStatus(total, item.threshold);
                   const cfg = STATUS_CONFIG[status];
                   const Icon = cfg.Icon;
@@ -157,33 +168,50 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        padding: "10px 14px 6px",
+                        padding: "10px 14px 8px",
                         gap: "8px",
                       }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{
+                        <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 10 }}>
+                          <span style={{
+                            flexShrink: 0,
+                            width: 28,
+                            height: 28,
+                            borderRadius: "8px",
+                            background: "var(--bg-card2)",
+                            border: "1px solid var(--border)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                             fontSize: "14px",
                             fontWeight: 700,
-                            color: "var(--text-primary)",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
+                            color: "var(--text-secondary)",
+                            fontVariantNumeric: "tabular-nums",
                           }}>
-                            {item.namaBarang}
-                          </p>
-                          <p style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-                              <Package size={11} strokeWidth={2} /> {item.satuan}
-                            </span>
-                            {item.threshold > 0 && (
+                            {item.no}
+                          </span>
+                          <div style={{ minWidth: 0 }}>
+                            <p style={{
+                              fontSize: "14px",
+                              fontWeight: 700,
+                              color: "var(--text-primary)",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}>
+                              {item.namaBarang}
+                            </p>
+                            <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                               <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-                                Min: {item.threshold}
+                                <Package size={11} strokeWidth={2} /> {item.satuan}
                               </span>
-                            )}
-                            {item.konversiKet && item.konversiKet !== "—" && (
-                              <span>{item.konversiKet}</span>
-                            )}
-                          </p>
+                              {item.threshold > 0 && (
+                                <span>Min: {item.threshold}</span>
+                              )}
+                              {item.konversiKet && item.konversiKet !== "—" && (
+                                <span>{item.konversiKet}</span>
+                              )}
+                            </p>
+                          </div>
                         </div>
 
                         {/* Status badge */}
@@ -200,7 +228,7 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
                             gap: 5,
                             padding: "4px 10px",
                             borderRadius: "var(--radius-full)",
-                            fontSize: "10px",
+                            fontSize: "11px",
                             fontWeight: 800,
                             letterSpacing: "0.3px",
                             background: cfg.bg,
@@ -214,16 +242,54 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
                         </motion.div>
                       </div>
 
+                      {/* Stok lama (read-only) */}
+                      <div style={{
+                        margin: "0 14px 10px",
+                        padding: "8px 12px",
+                        borderRadius: "var(--radius-sm)",
+                        background: "var(--bg-card2)",
+                        border: "1px dashed var(--border)",
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr 1fr",
+                        gap: "8px",
+                        alignItems: "center",
+                      }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "flex-start" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px", display: "flex", alignItems: "center", gap: 4 }}>
+                            <History size={11} strokeWidth={2.2} /> Stok Lama S1
+                          </span>
+                          <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>
+                            {item.oldStep1}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "flex-start" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px" }}>
+                            Stok Lama S2
+                          </span>
+                          <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>
+                            {item.oldStep2}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "flex-end" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px" }}>
+                            Total Lama
+                          </span>
+                          <span style={{ fontSize: "14px", fontWeight: 800, color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>
+                            {computeTotal(item.oldStep1, item.oldStep2)}
+                          </span>
+                        </div>
+                      </div>
+
                       {/* Input row */}
                       <div style={{
                         display: "grid",
                         gridTemplateColumns: "1fr 1fr 80px",
                         gap: "8px",
-                        padding: "8px 14px 12px",
+                        padding: "0 14px 12px",
                         alignItems: "center",
                       }}>
                         <label style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px" }}>
                             Step 1 (Utuh)
                           </span>
                           <input
@@ -241,7 +307,7 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
                         </label>
 
                         <label style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px" }}>
                             Step 2 (Terbuka)
                           </span>
                           <input
@@ -260,7 +326,7 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
 
                         {/* Total */}
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.6px" }}>
                             Total
                           </span>
                           <motion.div
@@ -268,15 +334,14 @@ export default function ItemTable({ items, onItemChange, filterKritis }: Props) 
                             initial={{ scale: 1.15, color: cfg.color }}
                             animate={{ scale: 1, transition: { type: "spring", stiffness: 400, damping: 20 } }}
                             style={{
-                              padding: "10px 12px",
-                              borderRadius: "var(--radius-sm)",
+                              ...boxBase,
                               background: cfg.bg,
-                              border: `1.5px solid ${cfg.border}`,
+                              borderColor: cfg.border,
                               color: cfg.color,
-                              fontSize: "16px",
-                              fontWeight: 800,
-                              textAlign: "center",
-                              fontVariantNumeric: "tabular-nums",
+                              height: 40,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
                             }}
                           >
                             {total}
