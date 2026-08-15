@@ -50,7 +50,7 @@ export function saveWorkbookState(
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (err) {
-    // Quota exceeded or storage unavailable — degrade gracefully.
+    // Quota exceeded or storage unavailable. Degrade gracefully.
     console.error("Gagal menyimpan ke localStorage:", err);
   }
 }

@@ -13,7 +13,7 @@ const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("so-theme");if(
 const SW_SCRIPT = `(function(){if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(e){console.warn("SW registration failed",e)})})}})()`;
 
 export const metadata: Metadata = {
-  title: "SO Excel Input — Stok Opname Harian",
+  title: "SO Excel Input - Stok Opname Harian",
   description: "Upload Excel template SO sebelumnya, isi stok baru, download file Excel terupdate.",
   manifest: "/manifest.json",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "SO Input" },

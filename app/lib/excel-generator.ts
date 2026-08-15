@@ -6,7 +6,7 @@ import type { SOSheet } from "../types";
 // Byte-preserving XLSX editor.
 //
 // XLSX.write() re-serializes the whole workbook and drops styled-but-empty
-// cells, drawings, and custom column widths — breaking "identical to template".
+// cells, drawings, and custom column widths, breaking "identical to template".
 // Instead we edit the XLSX ZIP in place: every file is kept byte-for-byte
 // except the specific cells we actually change, so the downloaded workbook is
 // structurally identical to the uploaded template.
@@ -97,7 +97,7 @@ function setCell(
   if (existing) {
     xml = xml.replace(cellRe, cell);
   } else {
-    // No cell yet — inject before the closing sheetData tag (respect order).
+    // No cell yet, inject before the closing sheetData tag (respect order).
     xml = xml.replace(/<\/sheetData>/, `${cell}</sheetData>`);
   }
   return { xml, sstXml };

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileSpreadsheet, CheckCircle2 } from "lucide-react";
 import { parseSOWorkbook } from "./lib/excel-parser";
@@ -39,6 +39,7 @@ export default function Home() {
   const [generating, setGenerating] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const headerHeight = useRef(0);
   const lastScrollY = useRef(0);
   const scrollTicking = useRef(false);
   const [hydrated, setHydrated] = useState(false);
@@ -86,17 +87,31 @@ export default function Home() {
       if (!el) return;
       const current = el.scrollTop;
       // Hide header when scrolling down past a small threshold; show when scrolling up.
-      // Directly mutate the DOM (no React state) so scroll never re-renders the page.
-      if (headerRef.current) {
+      // Collapse its height (not transform) so the content area reclaims the space,
+      // and sync a CSS var that the sticky category headings use as their top offset.
+      if (headerRef.current && scrollRef.current) {
         if (current > lastScrollY.current && current > 24) {
-          headerRef.current.style.transform = "translateY(-100%)";
+          if (headerRef.current.style.height !== "0px") {
+            headerRef.current.style.height = "0px";
+            scrollRef.current.style.setProperty("--cat-top", "0px");
+          }
         } else if (current < lastScrollY.current || current <= 24) {
-          headerRef.current.style.transform = "translateY(0%)";
+          if (headerRef.current.style.height !== headerHeight.current + "px") {
+            headerRef.current.style.height = headerHeight.current + "px";
+            scrollRef.current.style.setProperty("--cat-top", headerHeight.current + "px");
+          }
         }
       }
       lastScrollY.current = current;
     });
   }, []);
+
+  // Measure the real header height once so collapsing/expanding is pixel-accurate.
+  useLayoutEffect(() => {
+    if (!headerRef.current) return;
+    headerHeight.current = headerRef.current.offsetHeight;
+    scrollRef.current?.style.setProperty("--cat-top", headerHeight.current + "px");
+  }, [workbook, hydrated]);
 
   const handleFile = useCallback(async (buffer: ArrayBuffer, name: string) => {
     setLoading(true);
@@ -243,9 +258,9 @@ export default function Home() {
                 position: "sticky",
                 top: 0,
                 zIndex: 50,
-                transform: "translateY(0%)",
-                willChange: "transform",
-                transition: "transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
+                overflow: "hidden",
+                willChange: "height",
+                transition: "height 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
               }}
             >
               <HeaderInfo

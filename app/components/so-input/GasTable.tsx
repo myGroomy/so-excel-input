@@ -117,7 +117,7 @@ export default function GasTable({ items, onItemChange }: Props) {
                   }}
                 >
                   {STATUS_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>{opt || "— Pilih status"}</option>
+                    <option key={opt} value={opt}>{opt || "- Pilih status"}</option>
                   ))}
                   {!STATUS_OPTIONS.includes(item.statusQty) && item.statusQty && (
                     <option value={item.statusQty}>{item.statusQty}</option>
@@ -164,7 +164,7 @@ export default function GasTable({ items, onItemChange }: Props) {
                   type="number"
                   inputMode="decimal"
                   value={item.kwhSisa ?? ""}
-                  placeholder="—"
+                  placeholder="-"
                   onChange={(e) => onItemChange(item.rowIndex, "kwhSisa", parseFloat(e.target.value) || 0)}
                   style={inputBase}
                   onFocus={handleFocus}

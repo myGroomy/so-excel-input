@@ -21,7 +21,7 @@ const steps = [
   { icon: FolderOpen, title: "Upload template", text: "Pilih file Excel SO sebelumnya sebagai template" },
   { icon: CheckCircle2, title: "Isi stok baru", text: "Masukkan angka Step 1 (Utuh) & Step 2 (Terbuka) per item" },
   { icon: ClipboardList, title: "Status terhitung", text: "Status stok (Kritis / Hampir Habis / Aman) dihitung otomatis" },
-  { icon: Download, title: "Download Excel", text: "File baru identik template — rumus & format tetap jalan" },
+  { icon: Download, title: "Download Excel", text: "File baru identik template, rumus & format tetap jalan" },
 ];
 
 const stagger = {
@@ -246,7 +246,7 @@ export default function UploadZone({ onFile, loading }: Props) {
         style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: "11px", color: "var(--text-muted)", marginTop: "8px" }}
       >
         <MousePointerClick size={13} strokeWidth={2} />
-        Aplikasi berjalan penuh di perangkat ini — data tidak diunggah ke server
+        Aplikasi berjalan penuh di perangkat ini, data tidak diunggah ke server
       </motion.p>
     </motion.div>
   );

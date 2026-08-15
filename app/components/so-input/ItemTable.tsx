@@ -118,19 +118,23 @@ export default memo(function ItemTable({ items, onItemChange, filterKritis }: Pr
 
         return (
           <div key={category} style={{ marginBottom: "8px" }}>
-            {/* Category heading — sticks to top while scrolling; the next
-                category's heading naturally pushes this one out (CSS sticky). */}
+            {/* Notion-style category heading: sticky, pins while scrolling and is
+                replaced by the next category's heading as it scrolls in. */}
             <div style={{
-              padding: "8px 16px",
+              padding: "10px 16px",
               fontSize: "14px",
               fontWeight: 800,
               color: "var(--text-primary)",
               background: "var(--bg)",
               borderBottom: "1px solid var(--border)",
               position: "sticky",
-              top: "108px",
+              top: "var(--cat-top, 108px)",
               zIndex: 5,
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
             }}>
+              <span style={{ color: "var(--accent)", fontSize: "11px", lineHeight: 1 }}>▶</span>
               {category}
             </div>
 
@@ -199,7 +203,7 @@ export default memo(function ItemTable({ items, onItemChange, filterKritis }: Pr
                               {item.threshold > 0 && (
                                 <span>Min: {item.threshold}</span>
                               )}
-                              {item.konversiKet && item.konversiKet !== "—" && (
+                              {item.konversiKet && item.konversiKet !== "-" && (
                                 <span>{item.konversiKet}</span>
                               )}
                             </p>

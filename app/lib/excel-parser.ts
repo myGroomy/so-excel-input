@@ -15,9 +15,15 @@ function safeNum(val: unknown): number {
   return isNaN(n) ? 0 : n;
 }
 
+const DASH_RE = /[\u2012\u2013\u2014\u2015]/g;
+
+function normalizeDashes(s: string): string {
+  return s.replace(DASH_RE, "-");
+}
+
 function safeStr(val: unknown): string {
   if (val === null || val === undefined) return "";
-  return String(val).trim();
+  return normalizeDashes(String(val)).trim();
 }
 
 function parseDate(val: unknown): Date | null {
@@ -60,7 +66,7 @@ function parseSOSheet(ws: XLSX.WorkSheet, sheetName: string): SOSheet {
 
     // Category header row (e.g. ▶  MEJA BIRU DEPAN)
     if (typeof col1 === "string" && col1.startsWith("▶")) {
-      currentCategory = col1.replace("▶", "").trim();
+      currentCategory = normalizeDashes(col1.replace("▶", "").trim());
       continue;
     }
 
@@ -102,7 +108,7 @@ function parseSOSheet(ws: XLSX.WorkSheet, sheetName: string): SOSheet {
     items.push({
       rowIndex: i + 1, // 1-based
       no: typeof col0 === "number" ? col0 : i - 3,
-      namaBarang: col1,
+      namaBarang: normalizeDashes(col1).trim(),
       step1: 0,
       step2: 0,
       step1Touched: false,
