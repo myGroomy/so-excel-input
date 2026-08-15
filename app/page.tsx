@@ -1,9 +1,10 @@
 "use client";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileSpreadsheet, CheckCircle2 } from "lucide-react";
 import { parseSOWorkbook } from "./lib/excel-parser";
 import { generateSOExcel } from "./lib/excel-generator";
+import { saveWorkbookState, loadWorkbookState, clearWorkbookState } from "./lib/workbook-storage";
 import type { SOWorkbook, SOSheet, GasItem } from "./types";
 import UploadZone from "./components/so-input/UploadZone";
 import HeaderInfo from "./components/so-input/HeaderInfo";
@@ -39,6 +40,41 @@ export default function Home() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [headerHidden, setHeaderHidden] = useState(false);
   const lastScrollY = useRef(0);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Restore previously saved work in progress on mount.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const saved = loadWorkbookState();
+      if (saved) {
+        setWorkbook(saved.workbook);
+        setFileName(saved.fileName);
+        setSheets(saved.sheets);
+        setTanggal(saved.tanggal);
+        setNamaPetugas(saved.namaPetugas);
+        setActiveTab(saved.activeTab);
+        setFilterKritis(saved.filterKritis);
+      }
+      setHydrated(true);
+    }, 0);
+    return () => clearTimeout(id);
+  }, []);
+
+  // Auto-save whenever the work-in-progress changes.
+  useEffect(() => {
+    if (!hydrated || !workbook) return;
+    const timer = setTimeout(() => {
+      saveWorkbookState(workbook, {
+        fileName,
+        tanggal,
+        namaPetugas,
+        activeTab,
+        filterKritis,
+        sheets,
+      });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [hydrated, workbook, sheets, fileName, tanggal, namaPetugas, activeTab, filterKritis]);
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -129,6 +165,7 @@ export default function Home() {
   }, [workbook, sheets, tanggal, namaPetugas]);
 
   const handleReset = useCallback(() => {
+    clearWorkbookState();
     setWorkbook(null);
     setSheets([]);
     setFileName("");
@@ -150,7 +187,24 @@ export default function Home() {
       paddingTop: "env(safe-area-inset-top)",
     }}>
       <AnimatePresence mode="wait">
-        {!workbook ? (
+        {!hydrated ? (
+          <motion.div
+            key="restoring"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "60dvh",
+              fontSize: "14px",
+              color: "var(--text-muted)",
+            }}
+          >
+            Memulihkan data…
+          </motion.div>
+        ) : !workbook ? (
           <motion.div
             key="upload"
             initial={{ opacity: 0 }}
