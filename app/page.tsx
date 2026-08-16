@@ -211,7 +211,8 @@ export default function Home() {
     <main style={{
       maxWidth: "520px",
       margin: "0 auto",
-      minHeight: "100dvh",
+      height: "100dvh",
+      overflow: "hidden",
       display: "flex",
       flexDirection: "column",
       paddingTop: "env(safe-area-inset-top)",
@@ -241,7 +242,7 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.97, y: -8 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            style={{ padding: "20px 0 0" }}
+            style={{ padding: "20px 0 0", overflowY: "auto", flex: 1 }}
           >
             <UploadZone onFile={handleFile} loading={loading} />
           </motion.div>

@@ -64,9 +64,13 @@ function parseSOSheet(ws: XLSX.WorkSheet, sheetName: string): SOSheet {
     const col7 = row[7]; // Konversi Ket
     const col8 = row[8]; // Threshold
 
-    // Category header row (e.g. ▶  MEJA BIRU DEPAN)
-    if (typeof col1 === "string" && col1.startsWith("▶")) {
-      currentCategory = normalizeDashes(col1.replace("▶", "").trim());
+    // Category header row (e.g. ▶  MEJA BIRU DEPAN). The marker sits in the
+    // first cell (index 0), which is normally the item number for data rows.
+    const catCell = typeof col0 === "string" && col0.startsWith("▶") ? col0
+      : typeof col1 === "string" && col1.startsWith("▶") ? col1
+      : null;
+    if (catCell !== null) {
+      currentCategory = normalizeDashes(catCell.replace(/▶\s*/g, "").trim());
       continue;
     }
 

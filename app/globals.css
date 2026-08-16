@@ -125,13 +125,20 @@ html {
   background: var(--bg);
 }
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   background: var(--bg);
   background-image: var(--hero-gradient);
   background-attachment: fixed;
   color: var(--text-primary);
   font-family: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.3s ease, color 0.3s ease;
