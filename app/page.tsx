@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useRef, useEffect, useLayoutEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileSpreadsheet, CheckCircle2 } from "lucide-react";
 import { parseSOWorkbook } from "./lib/excel-parser";
@@ -38,10 +38,10 @@ export default function Home() {
   const [namaPetugas, setNamaPetugas] = useState("");
   const [filterKritis, setFilterKritis] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [headerCollapsed, setHeaderCollapsed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const collapseRef = useRef<HTMLDivElement>(null);
-  const collapseHeight = useRef(0);
   const lastScrollY = useRef(0);
   const scrollTicking = useRef(false);
   const [hydrated, setHydrated] = useState(false);
@@ -91,34 +91,14 @@ export default function Home() {
       // Hide the collapsible header section (date/officer + filter + tabs) when
       // scrolling down; keep the logo row always visible and show the section
       // again when scrolling up.
-      if (collapseRef.current) {
-        if (current > lastScrollY.current && current > 24) {
-          if (collapseRef.current.style.height !== "0px") {
-            collapseRef.current.style.height = "0px";
-          }
-        } else if (current < lastScrollY.current || current <= 24) {
-          if (collapseRef.current.style.height !== collapseHeight.current + "px") {
-            collapseRef.current.style.height = collapseHeight.current + "px";
-          }
-        }
+      if (current > lastScrollY.current && current > 24) {
+        setHeaderCollapsed(true);
+      } else if (current < lastScrollY.current || current <= 24) {
+        setHeaderCollapsed(false);
       }
       lastScrollY.current = current;
     });
   }, []);
-
-  // Measure the real collapsible-section height so collapse/expand is
-  // pixel-accurate. Only re-measure when the section is expanded, otherwise a
-  // collapsed height of 0px would overwrite the stored height and the section
-  // would never be able to expand again.
-  useLayoutEffect(() => {
-    const el = collapseRef.current;
-    if (!el) return;
-    const collapsed = el.style.height === "0px";
-    if (!collapsed) {
-      collapseHeight.current = el.offsetHeight;
-    }
-    el.style.height = collapseHeight.current + "px";
-  }, [workbook, hydrated, activeTab]);
 
   const handleFile = useCallback(async (buffer: ArrayBuffer, name: string) => {
     setLoading(true);
@@ -281,9 +261,9 @@ export default function Home() {
               <div
                 ref={collapseRef}
                 style={{
+                  maxHeight: headerCollapsed ? 0 : 480,
                   overflow: "hidden",
-                  willChange: "height",
-                  transition: "height 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
+                  transition: "max-height 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
                   background: "var(--bg-elevated)",
                 }}
               >
