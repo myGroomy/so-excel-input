@@ -106,12 +106,19 @@ export default function Home() {
     });
   }, []);
 
-  // Measure the real collapsible-section height so collapse/expand is pixel-accurate.
+  // Measure the real collapsible-section height so collapse/expand is
+  // pixel-accurate. Only re-measure when the section is expanded, otherwise a
+  // collapsed height of 0px would overwrite the stored height and the section
+  // would never be able to expand again.
   useLayoutEffect(() => {
-    if (!collapseRef.current) return;
-    collapseHeight.current = collapseRef.current.offsetHeight;
-    collapseRef.current.style.height = collapseHeight.current + "px";
-  }, [workbook, hydrated]);
+    const el = collapseRef.current;
+    if (!el) return;
+    const collapsed = el.style.height === "0px";
+    if (!collapsed) {
+      collapseHeight.current = el.offsetHeight;
+    }
+    el.style.height = collapseHeight.current + "px";
+  }, [workbook, hydrated, activeTab]);
 
   const handleFile = useCallback(async (buffer: ArrayBuffer, name: string) => {
     setLoading(true);
