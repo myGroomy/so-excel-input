@@ -201,8 +201,11 @@ export default function Home() {
 
   const activeSheet = sheets[activeTab];
 
-  // Count total items across all sheets
-  const totalItems = sheets.reduce((acc, s) => acc + (s.area !== "gas" ? s.items.length : (s.gasItems?.length ?? 0)), 0);
+  // Count items across all sheets. Template is fixed, so the count is
+  // deterministic: SO items (Step 1 & 2) plus gas items, shown separately.
+  const soItems = sheets.reduce((acc, s) => acc + (s.area !== "gas" ? s.items.length : 0), 0);
+  const gasItemsCount = sheets.reduce((acc, s) => acc + (s.area === "gas" ? (s.gasItems?.length ?? 0) : 0), 0);
+  const totalItems = soItems + gasItemsCount;
 
   return (
     <main style={{
@@ -283,7 +286,7 @@ export default function Home() {
                 justifyContent: "space-between",
                 gap: "8px",
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "7px", flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "7px", flex: 1, flexWrap: "wrap" }}>
                   <FileSpreadsheet size={13} strokeWidth={2} style={{ color: "var(--text-muted)" }} />
                   <motion.span
                     key={totalItems}
@@ -291,7 +294,7 @@ export default function Home() {
                     animate={{ opacity: 1 }}
                     style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-muted)" }}
                   >
-                    {totalItems} item terdeteksi
+                    {soItems} stok + {gasItemsCount} gas
                   </motion.span>
                   {filterKritis && (
                     <motion.span

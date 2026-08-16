@@ -34,6 +34,7 @@ export default function SheetTabs({ sheets, activeIndex, onSelect }: Props) {
         const Icon = AREA_ICONS[sheet.area] ?? LayoutGrid;
 
         let kritisCount = 0;
+        const itemCount = sheet.area === "gas" ? (sheet.gasItems?.length ?? 0) : sheet.items.length;
         if (sheet.area !== "gas") {
           for (const item of sheet.items) {
             const total = computeTotal(item.step1, item.step2);
@@ -68,6 +69,20 @@ export default function SheetTabs({ sheets, activeIndex, onSelect }: Props) {
           >
             <Icon size={15} strokeWidth={isActive ? 2.4 : 2} style={{ position: "relative", zIndex: 1 }} />
             <span style={{ position: "relative", zIndex: 1 }}>{sheet.label}</span>
+            <span style={{
+              position: "relative",
+              zIndex: 1,
+              padding: "1px 6px",
+              borderRadius: "var(--radius-full)",
+              background: isActive ? "rgba(255,255,255,0.22)" : "var(--bg-card2)",
+              color: isActive ? "var(--on-accent)" : "var(--text-muted)",
+              fontSize: "11px",
+              fontWeight: 700,
+              minWidth: "17px",
+              textAlign: "center",
+            }}>
+              {itemCount}
+            </span>
             {kritisCount > 0 && (
               <motion.span
                 key={kritisCount}

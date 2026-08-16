@@ -136,14 +136,16 @@ function parseGasSheet(ws: XLSX.WorkSheet, sheetName: string): SOSheet {
   const tanggal = parseDate(rows[1]?.[2]);
 
   const gasItems: GasItem[] = [];
-  // Data starts at row 4 (index 3)
+  // Data starts after the header row (row 4, index 3). Skip any row whose
+  // item cell is empty or is the "ITEM" column header itself.
   for (let i = 3; i < rows.length; i++) {
     const row = rows[i] as unknown[];
-    if (!row[1]) continue;
+    const itemCell = safeStr(row[1]);
+    if (!itemCell || itemCell === "ITEM") continue;
     gasItems.push({
       rowIndex: i + 1,
       no: safeStr(row[0]),
-      item: safeStr(row[1]),
+      item: itemCell,
       statusQty: safeStr(row[2]),
       tanggalIsiPakai: safeStr(row[3]),
       kwhSisa: row[4] !== null ? safeNum(row[4]) : null,
