@@ -8,6 +8,7 @@ import { saveWorkbookState, loadWorkbookState, clearWorkbookState } from "./lib/
 import type { SOWorkbook, SOSheet, GasItem } from "./types";
 import UploadZone from "./components/so-input/UploadZone";
 import HeaderInfo from "./components/so-input/HeaderInfo";
+import DateOfficerFields from "./components/so-input/DateOfficerFields";
 import SheetTabs from "./components/so-input/SheetTabs";
 import ItemTable from "./components/so-input/ItemTable";
 import GasTable from "./components/so-input/GasTable";
@@ -39,7 +40,8 @@ export default function Home() {
   const [generating, setGenerating] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
-  const headerHeight = useRef(0);
+  const collapseRef = useRef<HTMLDivElement>(null);
+  const collapseHeight = useRef(0);
   const lastScrollY = useRef(0);
   const scrollTicking = useRef(false);
   const [hydrated, setHydrated] = useState(false);
@@ -86,19 +88,17 @@ export default function Home() {
       const el = scrollRef.current;
       if (!el) return;
       const current = el.scrollTop;
-      // Hide header when scrolling down past a small threshold; show when scrolling up.
-      // Collapse its height (not transform) so the content area reclaims the space,
-      // and sync a CSS var that the sticky category headings use as their top offset.
-      if (headerRef.current && scrollRef.current) {
+      // Hide the collapsible header section (date/officer + filter + tabs) when
+      // scrolling down; keep the logo row always visible and show the section
+      // again when scrolling up.
+      if (collapseRef.current) {
         if (current > lastScrollY.current && current > 24) {
-          if (headerRef.current.style.height !== "0px") {
-            headerRef.current.style.height = "0px";
-            scrollRef.current.style.setProperty("--cat-top", "0px");
+          if (collapseRef.current.style.height !== "0px") {
+            collapseRef.current.style.height = "0px";
           }
         } else if (current < lastScrollY.current || current <= 24) {
-          if (headerRef.current.style.height !== headerHeight.current + "px") {
-            headerRef.current.style.height = headerHeight.current + "px";
-            scrollRef.current.style.setProperty("--cat-top", headerHeight.current + "px");
+          if (collapseRef.current.style.height !== collapseHeight.current + "px") {
+            collapseRef.current.style.height = collapseHeight.current + "px";
           }
         }
       }
@@ -106,11 +106,11 @@ export default function Home() {
     });
   }, []);
 
-  // Measure the real header height once so collapsing/expanding is pixel-accurate.
+  // Measure the real collapsible-section height so collapse/expand is pixel-accurate.
   useLayoutEffect(() => {
-    if (!headerRef.current) return;
-    headerHeight.current = headerRef.current.offsetHeight;
-    scrollRef.current?.style.setProperty("--cat-top", headerHeight.current + "px");
+    if (!collapseRef.current) return;
+    collapseHeight.current = collapseRef.current.offsetHeight;
+    collapseRef.current.style.height = collapseHeight.current + "px";
   }, [workbook, hydrated]);
 
   const handleFile = useCallback(async (buffer: ArrayBuffer, name: string) => {
@@ -261,68 +261,77 @@ export default function Home() {
                 position: "sticky",
                 top: 0,
                 zIndex: 50,
-                overflow: "hidden",
-                willChange: "height",
-                transition: "height 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
+                background: "var(--bg-elevated)",
               }}
             >
               <HeaderInfo
                 fileName={fileName}
-                tanggal={tanggal}
-                onTanggalChange={setTanggal}
-                namaPetugas={namaPetugas}
-                onNamaPetugasChange={setNamaPetugas}
                 onReset={handleReset}
               />
 
-              {/* Filter bar + tab */}
-              <div style={{
-                padding: "8px 16px 0",
-                background: "var(--bg-elevated)",
-                backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "8px",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "7px", flex: 1, flexWrap: "wrap" }}>
-                  <FileSpreadsheet size={13} strokeWidth={2} style={{ color: "var(--text-muted)" }} />
-                  <motion.span
-                    key={totalItems}
-                    initial={{ opacity: 0.5 }}
-                    animate={{ opacity: 1 }}
-                    style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-muted)" }}
-                  >
-                    {soItems} stok + {gasItemsCount} gas
-                  </motion.span>
-                  {filterKritis && (
+              {/* Collapsible section: date/officer + filter + tabs (hides on scroll down) */}
+              <div
+                ref={collapseRef}
+                style={{
+                  overflow: "hidden",
+                  willChange: "height",
+                  transition: "height 0.28s cubic-bezier(0.22, 1, 0.36, 1)",
+                  background: "var(--bg-elevated)",
+                }}
+              >
+                <DateOfficerFields
+                  tanggal={tanggal}
+                  onTanggalChange={setTanggal}
+                  namaPetugas={namaPetugas}
+                  onNamaPetugasChange={setNamaPetugas}
+                />
+
+                {/* Filter bar + tab */}
+                <div style={{
+                  padding: "8px 16px 0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "8px",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "7px", flex: 1, flexWrap: "wrap" }}>
+                    <FileSpreadsheet size={13} strokeWidth={2} style={{ color: "var(--text-muted)" }} />
                     <motion.span
-                      initial={{ opacity: 0, x: -4 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 4,
-                        fontSize: "10px",
-                        fontWeight: 700,
-                        color: "var(--kritis)",
-                        background: "var(--kritis-bg)",
-                        border: "1px solid var(--kritis-border)",
-                        padding: "2px 8px",
-                        borderRadius: "var(--radius-full)",
-                      }}
+                      key={totalItems}
+                      initial={{ opacity: 0.5 }}
+                      animate={{ opacity: 1 }}
+                      style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-muted)" }}
                     >
-                      <CheckCircle2 size={11} strokeWidth={2.5} />
-                      Filter aktif
+                      {soItems} stok + {gasItemsCount} gas
                     </motion.span>
-                  )}
+                    {filterKritis && (
+                      <motion.span
+                        initial={{ opacity: 0, x: -4 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          color: "var(--kritis)",
+                          background: "var(--kritis-bg)",
+                          border: "1px solid var(--kritis-border)",
+                          padding: "2px 8px",
+                          borderRadius: "var(--radius-full)",
+                        }}
+                      >
+                        <CheckCircle2 size={11} strokeWidth={2.5} />
+                        Filter aktif
+                      </motion.span>
+                    )}
+                  </div>
                 </div>
+
+                <SheetTabs sheets={sheets} activeIndex={activeTab} onSelect={setActiveTab} />
+
+                <div style={{ height: "8px" }} />
               </div>
-
-              <SheetTabs sheets={sheets} activeIndex={activeTab} onSelect={setActiveTab} />
-
-              <div style={{ height: "8px" }} />
             </div>
 
             {/* Scrollable content */}

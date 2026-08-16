@@ -128,7 +128,7 @@ export default memo(function ItemTable({ items, onItemChange, filterKritis }: Pr
               background: "var(--bg)",
               borderBottom: "1px solid var(--border)",
               position: "sticky",
-              top: "var(--cat-top, 108px)",
+              top: "0px",
               zIndex: 5,
               display: "flex",
               alignItems: "center",
